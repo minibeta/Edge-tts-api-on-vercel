@@ -41,7 +41,7 @@ async def generator(text: str, voice: str, rate: str, in_cue: int):
 
     zip_file.seek(0)
 '''
-    return audio_file
+    return audio_file.getvalue()
 
 @app.get("/")
 async def read_root():
