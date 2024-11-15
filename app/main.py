@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 import edge_tts
-import zipfile
 import io
 
 app = FastAPI()
@@ -35,13 +34,14 @@ async def generator(text: str, voice: str, rate: str, in_cue: int):
     if len(lines) >= 2:
         text = '\n'.join(lines[1:]).strip()
         srt_file.write(f"{text}\n\n")
-
+'''
     with zipfile.ZipFile(zip_file, 'w') as zipf:
         zipf.writestr("audio.mp3", audio_file.getvalue())
         zipf.writestr("audio.srt", srt_file.getvalue())
 
     zip_file.seek(0)
-    return zip_file
+'''
+    return audio_file
 
 @app.get("/")
 async def read_root():
@@ -66,6 +66,6 @@ async def read_root():
 async def generate(request: Request):
     try:
         zip_file = await generator(request.text, request.voice, request.rate, request.word_in_cue)
-        return StreamingResponse(zip_file, media_type='application/zip', headers={"Content-Disposition": "attachment; filename=Result.zip"})
+        return StreamingResponse(zip_file, media_type='audio/mpeg')
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
